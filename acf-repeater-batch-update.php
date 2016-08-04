@@ -3,7 +3,7 @@
 Plugin Name: ACF Repeater Batch Update
 Plugin URI: https://github.com/mchestnut/acf-repeater-batch-update
 Description: Modifies the ACF Repeater addon to batch update queries for performance improvement
-Version: 1.0.0
+Version: 1.0.1
 Author: Matt Chestnut
 Author URI: http://www.mattchestnut.com
 License: GNU GPLv2

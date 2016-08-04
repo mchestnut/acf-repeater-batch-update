@@ -36,6 +36,9 @@ This plugin uses a custom action that bypasses the core update_metadata function
 
 == Changelog ==
 
-= 1.0.0 =
+= 1.0.1 =
+* Fixed special characters not being escaped for SQL statements
 
+
+= 1.0.0 =
 * First version

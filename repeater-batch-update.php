@@ -217,6 +217,18 @@ class acf_field_repeater_batch_update {
         while ( $i > 0 ) {
             $i--;
 
+            if ( isset( $meta_fields[$i]['raw_meta_key'] ) ) {
+                $meta_fields[$i]['meta_key'] = $meta_fields[$i]['raw_meta_key'];
+            }
+
+            if ( isset( $meta_fields[$i]['raw_meta_value'] ) ) {
+                $meta_fields[$i]['meta_value'] = $meta_fields[$i]['raw_meta_value'];
+            }
+
+            $meta_fields[$i]['meta_key'] = wp_unslash($meta_fields[$i]['meta_key']);
+            $meta_fields[$i]['meta_value'] = wp_unslash($meta_fields[$i]['meta_value']);
+            $meta_fields[$i]['meta_value'] = sanitize_meta( $meta_fields[$i]['meta_key'], $meta_fields[$i]['meta_value'], $meta_type );
+
             /*
             * Filter whether to add metadata of a specific type.
             *
@@ -241,7 +253,7 @@ class acf_field_repeater_batch_update {
             // Build SQL statement
             $insert_values .= "(" . $object_id . ", ";
             $insert_values .= "'" . $meta_fields[$i]['meta_key'] . "', ";
-            $insert_values .= "'" . $meta_fields[$i]['meta_value'] . "'), ";
+            $insert_values .= "'" . $wpdb->_real_escape( $meta_fields[$i]['meta_value'] ) . "'), ";
         }
 
         $insert_values = rtrim( $insert_values, ', ' );
@@ -314,8 +326,9 @@ class acf_field_repeater_batch_update {
         while ( $i > 0 ) {
             $i--;
 
-            // expected_slashed ($meta_key)
+            $meta_fields[$i]['raw_meta_key'] = $meta_fields[$i]['meta_key'];
             $meta_fields[$i]['meta_key'] = wp_unslash($meta_fields[$i]['meta_key']);
+            $meta_fields[$i]['raw_meta_value'] = $meta_fields[$i]['meta_value'];
             $meta_fields[$i]['meta_value'] = wp_unslash($meta_fields[$i]['meta_value']);
             $meta_fields[$i]['meta_value'] = sanitize_meta( $meta_fields[$i]['meta_key'], $meta_fields[$i]['meta_value'], $meta_type );
 
@@ -346,6 +359,7 @@ class acf_field_repeater_batch_update {
         // Remove empty keys from $meta_fields
         $meta_fields = array_values( $meta_fields );
       
+        $where_keys = '';
         foreach ( $meta_fields as $meta_field ) {
             $where_keys .= "'" . $meta_field['meta_key'] . "', ";
         }
@@ -391,7 +405,7 @@ class acf_field_repeater_batch_update {
 
             // Build SQL statement
             $set_values .= "WHEN '" . $meta_field['meta_key'] . "' ";
-            $set_values .= "THEN '" . $meta_field['meta_value'] . "' ";
+            $set_values .= "THEN '" . $wpdb->_real_escape( $meta_field['meta_value'] ) . "' ";
             $where_keys .= "'" . $meta_field['meta_key'] . "', ";
 
             /*
@@ -404,6 +418,8 @@ class acf_field_repeater_batch_update {
 
         $set_values .= 'END';
         $where_keys = rtrim( $where_keys, ', ' ) . ')';
+
+        $result = false;
 
         // Update database
         if ( $meta_fields ) {
